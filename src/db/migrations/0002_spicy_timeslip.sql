@@ -1,0 +1,1 @@
+ALTER TABLE `reps` ADD `index` integer NOT NULL;

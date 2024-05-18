@@ -11,10 +11,11 @@ CREATE TABLE `reps` (
 );
 --> statement-breakpoint
 CREATE TABLE `sets` (
-	`id` integer,
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`workoutId` integer NOT NULL,
+	`exerciseId` integer,
 	FOREIGN KEY (`workoutId`) REFERENCES `workouts`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`id`) REFERENCES `exercises`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`exerciseId`) REFERENCES `exercises`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `workouts` (

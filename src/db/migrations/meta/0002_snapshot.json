@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "14f9418e-e982-4ddd-9b8c-c9b7f35705f9",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "d137f6ca-ed89-425b-b255-78179f9100c8",
+  "prevId": "5b035d92-6036-4491-8d66-562d2ad755d6",
   "tables": {
     "exercises": {
       "name": "exercises",
@@ -58,6 +58,13 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "index": {
+          "name": "index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -89,6 +96,13 @@
           "notNull": true,
           "autoincrement": true
         },
+        "index": {
+          "name": "index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "workoutId": {
           "name": "workoutId",
           "type": "integer",
@@ -100,7 +114,7 @@
           "name": "exerciseId",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         }
       },
