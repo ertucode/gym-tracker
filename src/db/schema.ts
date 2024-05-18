@@ -3,25 +3,27 @@ import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
 
 export const exercises = sqliteTable("exercises", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-  name: text("text").notNull().unique(),
+  name: text("text", { length: 50 }).notNull().unique(),
 });
 
 export const workouts = sqliteTable("workouts", {
-  start_date: text("timestamp").notNull(),
-  end_date: text("timestamp"),
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  startDate: text("timestamp").notNull(),
+  endDate: text("timestamp"),
 });
 
-export const sets = sqliteTable("workout_sets", {
+export const sets = sqliteTable("sets", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-});
-
-export const reps = sqliteTable("set_reps", {
-  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  workoutId: integer("workoutId")
+    .references(() => workouts.id)
+    .notNull(),
   exercise: integer("id").references(() => exercises.id),
-  count: integer("count").notNull(),
 });
 
-export const sets_and_reps = sqliteTable("set_and_reps", {
-  set_id: integer("set_id").references(() => sets.id),
-  rep_id: integer("rep_id").references(() => reps.id),
+export const reps = sqliteTable("reps", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  setId: integer("setId")
+    .references(() => sets.id)
+    .notNull(),
+  count: integer("count").notNull(),
 });
