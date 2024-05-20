@@ -67,7 +67,7 @@ export default function Home() {
   return (
     <div className="h-screen">
       <form
-        className="flex flex-col gap-3 items-start"
+        className="flex flex-col items-start gap-3"
         onSubmit={createWorkout}
       >
         <label>
@@ -82,7 +82,7 @@ export default function Home() {
       </form>
       <br />
       <form
-        className="flex flex-col gap-3 items-start"
+        className="flex flex-col items-start gap-3"
         onSubmit={createExercise}
       >
         <label>
@@ -92,7 +92,7 @@ export default function Home() {
         <button type="submit">CREATE EXERCISE</button>
       </form>
       <br />
-      <form className="flex flex-col gap-3 items-start" onSubmit={createSet}>
+      <form className="flex flex-col items-start gap-3" onSubmit={createSet}>
         <label>
           Exercise Id
           <input type="text" name="exerciseId"></input>
@@ -107,7 +107,7 @@ export default function Home() {
         </label>
         <button type="submit">CREATE SET</button>
       </form>
-      <form className="flex flex-col gap-3 items-start" onSubmit={createRep}>
+      <form className="flex flex-col items-start gap-3" onSubmit={createRep}>
         <label>
           Set Id
           <input type="text" name="setId"></input>
