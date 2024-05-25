@@ -6,6 +6,7 @@ import {
 	createSetAction,
 	createWorkoutAction,
 } from "@/actions/actions";
+import { Calendar } from "@/components/calendar";
 import { FormEvent, useState } from "react";
 
 export default function Home() {
@@ -58,6 +59,9 @@ export default function Home() {
 	};
 	return (
 		<div className="h-screen">
+			<div className="mb-5 flex items-start">
+				<Calendar />
+			</div>
 			<form className="flex flex-col items-start gap-3 " onSubmit={createWorkout}>
 				<label>
 					Start Date
