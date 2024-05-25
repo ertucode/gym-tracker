@@ -6,8 +6,10 @@ import {
 	createSetAction,
 	createWorkoutAction,
 } from "@/actions/actions";
-import { Calendar } from "@/components/calendar";
-import { FormEvent, useState } from "react";
+import { Calendar, CalendarRef } from "@/components/calendar";
+import { FormEvent, useRef, useState } from "react";
+
+// TODO: https://developer.mozilla.org/en-US/docs/Web/API/Popover_API
 
 export default function Home() {
 	const [actions, setActions] = useState<{ action: string; metadata: any }[]>([]);
@@ -20,6 +22,13 @@ export default function Home() {
 		const result = await createWorkoutAction({ startDate, endDate });
 
 		setActions((s) => [...s, { action: "workout", metadata: { startDate, endDate, result } }]);
+	};
+
+	const createWorkoutFromStart = async (start: Date) => {
+		const body = { startDate: start, endDate: undefined };
+		const result = await createWorkoutAction(body);
+
+		setActions((s) => [...s, { action: "workout", metadata: { ...body, result } }]);
 	};
 
 	const createExercise = async (e: FormEvent<HTMLFormElement>) => {
@@ -57,10 +66,21 @@ export default function Home() {
 
 		setActions((s) => [...s, { action: "rep", metadata: { body, result } }]);
 	};
+
+	const calendarRef = useRef<CalendarRef>(null);
+
 	return (
 		<div className="h-screen">
 			<div className="mb-5 flex items-start">
-				<Calendar />
+				<Calendar ref={calendarRef} />
+				<button
+					onClick={() => {
+						const date = calendarRef.current?.selectedDate() ?? new Date();
+						createWorkoutFromStart(date);
+					}}
+				>
+					Use Calendar
+				</button>
 			</div>
 			<form className="flex flex-col items-start gap-3 " onSubmit={createWorkout}>
 				<label>
