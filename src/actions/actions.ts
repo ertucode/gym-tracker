@@ -1,7 +1,9 @@
 "use server";
 
+import { Month } from "@/components/date-utils";
 import { db } from "@/db/db";
 import { Exercises, Reps, Sets, Workouts } from "@/db/schema";
+import { DateUtil } from "@/utils/date-utils";
 
 export type CreateWorkout = {
 	startDate: Date;
@@ -11,8 +13,8 @@ export async function createWorkoutAction(request: CreateWorkout) {
 	return await db
 		.insert(Workouts)
 		.values({
-			startDate: request.startDate.getTime().toString(),
-			endDate: request.endDate?.getTime().toString(),
+			startDate: request.startDate,
+			endDate: request.endDate,
 		})
 		.returning({ id: Workouts.id });
 }
@@ -59,4 +61,28 @@ export async function createRepAction(request: CreateRep) {
 			index: request.index,
 		})
 		.returning({ id: Reps.id });
+}
+
+export type GetWorkoutsForDay = {
+	time: number;
+};
+export async function getWorkoutsForDay(request: GetWorkoutsForDay) {
+	const date = new DateUtil(request.time);
+
+	return db.query.Workouts.findMany({
+		where: (workouts, { and, gte, lte }) =>
+			and(gte(workouts.startDate, date.dayStart()), lte(workouts.endDate, date.dayEnd())),
+	});
+}
+
+export type GetWorkoutsForMonth = {
+	month: Month;
+};
+export async function getWorkoutsForMonth({ month }: GetWorkoutsForMonth) {
+	const date = new DateUtil(month.year, month.month);
+
+	return db.query.Workouts.findMany({
+		where: (workouts, { and, gte, lte }) =>
+			and(gte(workouts.startDate, date.monthStart()), lte(workouts.endDate, date.monthEnd())),
+	});
 }

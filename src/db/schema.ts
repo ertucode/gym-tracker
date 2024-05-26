@@ -11,8 +11,8 @@ export const Exercises = sqliteTable("exercises", {
 
 export const Workouts = sqliteTable("workouts", {
 	id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-	startDate: text("timestamp").notNull(),
-	endDate: text("timestamp"),
+	startDate: integer("timestamp", { mode: "timestamp" }).notNull(),
+	endDate: integer("timestamp", { mode: "timestamp" }),
 	note: text("note"),
 });
 

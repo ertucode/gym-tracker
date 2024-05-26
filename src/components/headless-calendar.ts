@@ -2,7 +2,6 @@ import {
 	NavigationState,
 	CalendarResponsiveOptions,
 	CalendarTypeView,
-	LocaleSettings,
 	Month,
 } from "./calendar-interface";
 
@@ -25,185 +24,16 @@ const weekdayNames = Object.fromEntries(
 	}),
 );
 
-export class HeadlessCalendar {
+class HeadlessCalendar {
 	getFirstDateOfWeek() {
 		return 1;
 	}
-
-	iconDisplay: "input" | "button" = "button";
-	/**
-	 * Inline style of the component.
-	 * @group Props
-	 */
-	style: { [klass: string]: any } | null | undefined;
-	/**
-	 * Style class of the component.
-	 * @group Props
-	 */
-	styleClass: string | undefined;
-	/**
-	 * Inline style of the input field.
-	 * @group Props
-	 */
-	inputStyle: { [klass: string]: any } | null | undefined;
-	/**
-	 * Identifier of the focus input to match a label defined for the component.
-	 * @group Props
-	 */
-	inputId: string | undefined;
-	/**
-	 * Name of the input element.
-	 * @group Props
-	 */
-	name: string | undefined;
-	/**
-	 * Style class of the input field.
-	 * @group Props
-	 */
-	inputStyleClass: string | undefined;
-	/**
-	 * Placeholder text for the input.
-	 * @group Props
-	 */
-	placeholder: string | undefined;
-	/**
-	 * Establishes relationships between the component and label(s) where its value should be one or more element IDs.
-	 * @group Props
-	 */
-	ariaLabelledBy: string | undefined;
-	/**
-	 * Defines a string that labels the input for accessibility.
-	 * @group Props
-	 */
-	ariaLabel: string | undefined;
-
-	/**
-	 * Defines a string that labels the icon button for accessibility.
-	 * @group Props
-	 */
-	iconAriaLabel: string | undefined;
-	/**
-	 * When specified, disables the component.
-	 * @group Props
-	 */
-	disabled: boolean | undefined;
-	/**
-	 * Format of the date which can also be defined at locale settings.
-	 * @group Props
-	 */
-	dateFormat: string | undefined;
-	/**
-	 * Separator for multiple selection mode.
-	 * @group Props
-	 */
-	multipleSeparator: string = ",";
-	/**
-	 * Separator for joining start and end dates on range selection mode.
-	 * @group Props
-	 */
-	rangeSeparator: string = "-";
-	/**
-	 * When enabled, displays the calendar as inline. Default is false for popup mode.
-	 * @group Props
-	 */
-	inline: boolean = false;
-	/**
-	 * Whether to display dates in other months (non-selectable) at the start or end of the current month. To make these days selectable use the selectOtherMonths option.
-	 * @group Props
-	 */
-	showOtherMonths: boolean = true;
-	/**
-	 * Whether days in other months shown before or after the current month are selectable. This only applies if the showOtherMonths option is set to true.
-	 * @group Props
-	 */
-	selectOtherMonths: boolean | undefined;
-	/**
-	 * When enabled, displays a button with icon next to input.
-	 * @group Props
-	 */
-	showIcon: boolean | undefined;
-	/**
-	 * Icon of the calendar button.
-	 * @group Props
-	 */
-	icon: string | undefined;
-	/**
-	 * When specified, prevents entering the date manually with keyboard.
-	 * @group Props
-	 */
-	readonlyInput: boolean | undefined;
-	/**
-	 * The cutoff year for determining the century for a date.
-	 * @group Props
-	 */
-	shortYearCutoff: any = "+10";
-	/**
-	 * Whether the month should be rendered as a dropdown instead of text.
-	 * @group Props
-	 * @deprecated Navigator is always on.
-	 */
-	monthNavigator: boolean | undefined;
-	/**
-	 * Whether the year should be rendered as a dropdown instead of text.
-	 * @group Props
-	 * @deprecated  Navigator is always on.
-	 */
-	yearNavigator: boolean | undefined;
-	/**
-	 * Specifies 12 or 24 hour format.
-	 * @group Props
-	 */
-	hourFormat: string = "24";
-	/**
-	 * Whether to display timepicker only.
-	 * @group Props
-	 */
-	timeOnly: boolean | undefined;
-	/**
-	 * Hours to change per step.
-	 * @group Props
-	 */
-	stepHour: number = 1;
-	/**
-	 * Minutes to change per step.
-	 * @group Props
-	 */
-	stepMinute: number = 1;
-	/**
-	 * Seconds to change per step.
-	 * @group Props
-	 */
-	stepSecond: number = 1;
-	/**
-	 * Whether to show the seconds in time picker.
-	 * @group Props
-	 */
-	showSeconds: boolean = false;
-	/**
-	 * When present, it specifies that an input field must be filled out before submitting the form.
-	 * @group Props
-	 */
-	required: boolean | undefined;
-	/**
-	 * When disabled, datepicker will not be visible with input focus.
-	 * @group Props
-	 */
-	showOnFocus: boolean = true;
-	/**
-	 * When enabled, calendar will show week numbers.
-	 * @group Props
-	 */
 	showWeek: boolean = true;
 	/**
 	 * When enabled, calendar will start week numbers from first day of the year.
 	 * @group Props
 	 */
 	startWeekFromFirstDayOfYear: boolean = false;
-	/**
-	 * When enabled, a clear icon is displayed to clear the value.
-	 * @group Props
-	 */
-	showClear: boolean = false;
 	/**
 	 * Type of the value to write back to ngModel, default is date and alternative is string.
 	 * @group Props
@@ -317,14 +147,6 @@ export class HeadlessCalendar {
 		this.createWeekDays();
 	}
 	/**
-	 * Option to set calendar locale.
-	 * @group Props
-	 * @deprecated Locale property has no effect, use new i18n API instead.
-	 */
-	set locale(newLocale: LocaleSettings) {
-		console.warn("Locale property has no effect, use new i18n API instead.");
-	}
-	/**
 	 * Type of view to display, valid values are "date" for datepicker and "month" for month picker.
 	 * @group Props
 	 */
@@ -399,8 +221,6 @@ export class HeadlessCalendar {
 
 	initialized: Nullable<boolean>;
 
-	_locale!: LocaleSettings;
-
 	_responsiveOptions!: CalendarResponsiveOptions[];
 
 	currentView: Nullable<string>;
@@ -418,30 +238,6 @@ export class HeadlessCalendar {
 	_defaultDate!: Date;
 
 	_focusKey: Nullable<string> = null;
-
-	get locale() {
-		return this._locale;
-	}
-
-	get iconButtonAriaLabel() {
-		return this.iconAriaLabel ? this.iconAriaLabel : this.getTranslation("chooseDate");
-	}
-
-	get prevIconAriaLabel() {
-		return this.currentView === "year"
-			? this.getTranslation("prevDecade")
-			: this.currentView === "month"
-				? this.getTranslation("prevYear")
-				: this.getTranslation("prevMonth");
-	}
-
-	get nextIconAriaLabel() {
-		return this.currentView === "year"
-			? this.getTranslation("nextDecade")
-			: this.currentView === "month"
-				? this.getTranslation("nextYear")
-				: this.getTranslation("nextMonth");
-	}
 
 	getTranslation(...params: any[]) {
 		return 2 as any;
@@ -595,7 +391,7 @@ export class HeadlessCalendar {
 		this.currentYear--;
 		let _yearOptions = <number[]>this.yearOptions;
 
-		if (this.yearNavigator && this.currentYear < _yearOptions[0]) {
+		if (this.currentYear < _yearOptions[0]) {
 			let difference = _yearOptions[_yearOptions.length - 1] - _yearOptions[0];
 			this.populateYearOptions(
 				_yearOptions[0] - difference,
@@ -616,7 +412,7 @@ export class HeadlessCalendar {
 		this.currentYear++;
 		let _yearOptions = <number[]>this.yearOptions;
 
-		if (this.yearNavigator && this.currentYear > _yearOptions[_yearOptions.length - 1]) {
+		if (this.currentYear > _yearOptions[_yearOptions.length - 1]) {
 			let difference = _yearOptions[_yearOptions.length - 1] - _yearOptions[0];
 			this.populateYearOptions(
 				_yearOptions[0] + difference,
@@ -631,19 +427,6 @@ export class HeadlessCalendar {
 				? this.maxDateCount > (this.value ? this.value.length : 0)
 				: true;
 		else return true;
-	}
-
-	setCurrentHourPM(hours: number) {
-		if (this.hourFormat == "12") {
-			this.pm = hours > 11;
-			if (hours >= 12) {
-				this.currentHour = hours == 12 ? 12 : hours - 12;
-			} else {
-				this.currentHour = hours == 0 ? 12 : hours;
-			}
-		} else {
-			this.currentHour = hours;
-		}
 	}
 
 	getFirstDayOfMonthIndex(month: number, year: number) {
@@ -771,9 +554,9 @@ export class HeadlessCalendar {
 		let validDate = true;
 		let validDay = true;
 
-		if (otherMonth && !this.selectOtherMonths) {
-			return false;
-		}
+		// if (otherMonth && !this.selectOtherMonths) {
+		// 	return false;
+		// }
 
 		// if (this.minDate) {
 		// 	if (this.minDate.getFullYear() > year) {
@@ -886,3 +669,5 @@ export class HeadlessCalendar {
 		);
 	}
 }
+
+export const calendarUtils = new HeadlessCalendar();

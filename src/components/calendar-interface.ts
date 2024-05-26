@@ -1,50 +1,4 @@
 /**
- * Locale settings options.
- * @group Interface
- */
-export interface LocaleSettings {
-	/**
-	 * Day value.
-	 */
-	firstDayOfWeek?: number;
-	/**
-	 * Day names.
-	 */
-	dayNames?: string[];
-	/**
-	 * Shortened day names.
-	 */
-	dayNamesShort?: string[];
-	/**
-	 * Minimum days names.
-	 */
-	dayNamesMin?: string[];
-	/**
-	 * Month names.
-	 */
-	monthNames?: string[];
-	/**
-	 * Shortened month names.
-	 */
-	monthNamesShort?: string[];
-	/**
-	 * Value of today date string.
-	 */
-	today?: string;
-	/**
-	 * Clear.
-	 */
-	clear?: string;
-	/**
-	 * Date format.
-	 */
-	dateFormat?: string;
-	/**
-	 * Week header.
-	 */
-	weekHeader?: string;
-}
-/**
  * Month interface.
  * @group Interface
  */
@@ -73,20 +27,6 @@ export interface Month {
 	 * Array of week numbers.
 	 */
 	weekNumbers?: number[];
-}
-/**
- * Custom Calendar responsive options metadata.
- * @group Interface
- */
-export interface CalendarResponsiveOptions {
-	/**
-	 * Breakpoint for responsive mode. Exp; @media screen and (max-width: ${breakpoint}) {...}
-	 */
-	breakpoint?: string;
-	/**
-	 * The number of visible months on breakpoint.
-	 */
-	numMonths?: number;
 }
 /**
  * Custom type for the calendar views.
