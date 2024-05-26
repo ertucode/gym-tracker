@@ -1,10 +1,12 @@
 "use client";
 
-import { getWorkoutsForMonth } from "@/actions/actions";
+import { createWorkoutAction, getWorkoutsForMonth } from "@/actions/actions";
 import { Calendar, CalendarRef } from "@/components/calendar";
 import { Month } from "@/components/date-utils";
+import { useClient } from "@/hooks/useClient";
 import { DateUtil } from "@/utils/date-utils";
 import { useRouter } from "next/navigation";
+import { Button } from "primereact/button";
 import { useCallback, useRef, useState } from "react";
 
 type Workout = Awaited<ReturnType<typeof getWorkoutsForMonth>>[number];
@@ -13,6 +15,8 @@ export default function WorkoutsLayout({ children }: { children: React.ReactNode
 	const calendarRef = useRef<CalendarRef>(null);
 
 	const [workouts, setWorkouts] = useState<Workout[] | null>(null);
+
+	const client = useClient();
 
 	const classCb = useCallback(
 		(month: Month, day: number) => {
@@ -37,20 +41,21 @@ export default function WorkoutsLayout({ children }: { children: React.ReactNode
 
 	const router = useRouter();
 
+	if (!client) return null;
+
+	const date = resolveSelectedDateFromParam();
+
 	return (
-		<div className="align-start flex flex-col">
+		<div className="flex flex-col items-start">
 			<Calendar
 				ref={calendarRef}
+				selectedDate={date}
 				onSelected={(d) => {
 					if (!d) router.push("/workouts");
 					else {
-						const prevTime = window.location.pathname.split("/")[2];
-						if (prevTime) {
-							const time = parseInt(prevTime);
-							if (!isNaN(time)) {
-								const date = new DateUtil(time);
-								if (date.dayStart().getTime() === new DateUtil(d).dayStart().getTime()) return;
-							}
+						const date = resolveSelectedDateFromParam();
+						if (date) {
+							if (date.dayStart().getTime() === new DateUtil(d).dayStart().getTime()) return;
 						}
 						router.push(`/workouts/${d.getTime()}`);
 					}
@@ -62,7 +67,30 @@ export default function WorkoutsLayout({ children }: { children: React.ReactNode
 				}}
 				classCb={classCb}
 			/>
+			<Button
+				onClick={() => {
+					createWorkoutAction({
+						startDate: calendarRef.current?.selectedDate() ?? new Date(),
+					}).then(() => {
+						window.location.reload();
+					});
+				}}
+				label="Create Workout"
+				className="my-3"
+			></Button>
 			{children}
 		</div>
 	);
+}
+
+function resolveSelectedDateFromParam() {
+	const prevTime = window.location.pathname.split("/")[2];
+	if (prevTime) {
+		const time = parseInt(prevTime);
+		if (!isNaN(time)) {
+			const date = new DateUtil(time);
+			return date;
+		}
+	}
+	return null;
 }

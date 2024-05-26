@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ffe5ce31-52ea-4bb7-aa43-4b861752fd48",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "aa7e4965-d1ef-4343-89f7-755811697426",
+  "prevId": "ffe5ce31-52ea-4bb7-aa43-4b861752fd48",
   "tables": {
     "exercises": {
       "name": "exercises",
@@ -202,6 +202,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "isDeleted": {
+          "name": "isDeleted",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
         }
       },
       "indexes": {},

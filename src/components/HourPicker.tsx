@@ -2,8 +2,8 @@ import { Dispatch, SetStateAction } from "react";
 import { NumberPicker } from "./NumberPicker";
 
 type HourPickerProps = {
-	selectedDate: Date | null;
-	setSelectedDate: Dispatch<SetStateAction<Date | null>>;
+	selectedDate: Date | null | undefined;
+	setSelectedDate: Dispatch<SetStateAction<Date | null | undefined>>;
 };
 export function HourPicker({ selectedDate, setSelectedDate }: HourPickerProps) {
 	return (

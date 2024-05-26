@@ -25,7 +25,8 @@ CREATE TABLE `sets` (
 --> statement-breakpoint
 CREATE TABLE `workouts` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`timestamp` integer,
+	`startDate` integer NOT NULL,
+	`endDate` integer,
 	`note` text
 );
 --> statement-breakpoint

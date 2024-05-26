@@ -5,7 +5,8 @@ import { HourPicker } from "./HourPicker";
 import { MonthDisplayer } from "./MonthDisplayer";
 
 export type CalendarProps = {
-	onSelected?: (d: Date | null) => void;
+	onSelected?: (d: Date | undefined | null) => void;
+	selectedDate?: Date | null;
 	onMonthChange?: (m: Month) => void;
 	classCb?: (m: Month, d: number) => string | null | undefined;
 };
@@ -16,7 +17,7 @@ export type CalendarRef = {
 export const weeks = calendarUtils.createWeekDays();
 
 export const Calendar = forwardRef<CalendarRef, CalendarProps>(function Calendar(props, ref) {
-	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+	const [selectedDate, setSelectedDate] = useState<Date | null | undefined>(props.selectedDate);
 
 	useEffect(() => {
 		props.onSelected?.(selectedDate);
@@ -32,9 +33,14 @@ export const Calendar = forwardRef<CalendarRef, CalendarProps>(function Calendar
 	}, [month]);
 
 	const onSelectDay = (month: Month, day: number) => {
-		const date = new Date(month.year, month.month, day);
+		setSelectedDate((prev) => {
+			if (!prev) {
+				const p = new Date();
+				return new Date(month.year, month.month, day, p.getHours(), p.getMinutes());
+			}
 
-		setSelectedDate(date);
+			return new Date(month.year, month.month, day, prev.getHours(), prev.getMinutes());
+		});
 	};
 
 	useImperativeHandle(

@@ -4,6 +4,7 @@ import { Month } from "@/components/date-utils";
 import { db } from "@/db/db";
 import { Exercises, Reps, Sets, Workouts } from "@/db/schema";
 import { DateUtil } from "@/utils/date-utils";
+import { and, eq } from "drizzle-orm";
 
 export type CreateWorkout = {
 	startDate: Date;
@@ -71,7 +72,11 @@ export async function getWorkoutsForDay(request: GetWorkoutsForDay) {
 
 	return db.query.Workouts.findMany({
 		where: (workouts, { and, gte, lte }) =>
-			and(gte(workouts.startDate, date.dayStart()), lte(workouts.endDate, date.dayEnd())),
+			and(
+				gte(workouts.startDate, date.dayStart()),
+				lte(workouts.startDate, date.dayEnd()),
+				eq(Workouts.isDeleted, false),
+			),
 	});
 }
 
@@ -83,6 +88,43 @@ export async function getWorkoutsForMonth({ month }: GetWorkoutsForMonth) {
 
 	return db.query.Workouts.findMany({
 		where: (workouts, { and, gte, lte }) =>
-			and(gte(workouts.startDate, date.monthStart()), lte(workouts.endDate, date.monthEnd())),
+			and(
+				gte(workouts.startDate, date.monthStart()),
+				lte(workouts.startDate, date.monthEnd()),
+				eq(Workouts.isDeleted, false),
+			),
 	});
+}
+
+export type UpdateWorkout = {
+	id: number;
+	startDate: Date;
+	endDate?: Date | null;
+	note?: string | null;
+};
+export async function updateWorkoutAction(request: UpdateWorkout) {
+	return db
+		.update(Workouts)
+		.set({
+			startDate: request.startDate,
+			endDate: request.endDate,
+			note: request.note,
+			id: request.id,
+		})
+		.where(and(eq(Workouts.id, request.id), eq(Workouts.isDeleted, false)))
+		.returning({ id: Workouts.id, startDate: Workouts.startDate, endDate: Workouts.endDate });
+}
+
+export type DeleteWorkout = {
+	id: number;
+};
+export async function deleteWorkoutAction(request: DeleteWorkout) {
+	const item = await db.select().from(Workouts).where(eq(Workouts.id, request.id));
+	if (!item) return;
+
+	return db
+		.update(Workouts)
+		.set({ ...item, isDeleted: true })
+		.where(eq(Workouts.id, request.id))
+		.returning({ id: Workouts });
 }
