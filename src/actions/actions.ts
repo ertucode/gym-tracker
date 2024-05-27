@@ -52,6 +52,7 @@ export type CreateRep = {
 	count: number;
 	index: number;
 	setId: number;
+	weight: number;
 };
 export async function createRepAction(request: CreateRep) {
 	return db
@@ -60,6 +61,7 @@ export async function createRepAction(request: CreateRep) {
 			count: request.count,
 			setId: request.setId,
 			index: request.index,
+			weight: request.weight,
 		})
 		.returning({ id: Reps.id });
 }
@@ -127,4 +129,28 @@ export async function deleteWorkoutAction(request: DeleteWorkout) {
 		.set({ ...item, isDeleted: true })
 		.where(eq(Workouts.id, request.id))
 		.returning({ id: Workouts });
+}
+
+export type GetWorkout = {
+	id: number;
+};
+export async function getWorkoutAction(request: GetWorkout) {
+	return db.query.Workouts.findFirst({
+		where: eq(Workouts.id, request.id),
+		with: {
+			sets: {
+				with: {
+					reps: true,
+				},
+			},
+		},
+	});
+}
+
+export async function allExercises() {
+	return db.query.Exercises.findMany();
+}
+
+export async function removeRepAction(id: number) {
+	return db.delete(Reps).where(eq(Reps.id, id)).returning();
 }

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "./resets.css";
 
-import { PrimeReactProvider } from "primereact/api";
+import { Nav } from "@/components/layout/nav";
+import { cn } from "@/utils/cn";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -18,8 +20,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="tr">
-			<body className={inter.className}>
-				<PrimeReactProvider>{children}</PrimeReactProvider>
+			<body className={cn("bg-background min-h-screen font-sans antialiased", inter.variable)}>
+				<Nav />
+				<div className="p-1">{children}</div>
 			</body>
 		</html>
 	);

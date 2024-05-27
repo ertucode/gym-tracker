@@ -7,6 +7,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { z } from "zod";
 
 import { PrimedCalendar } from "./PrimedCalendar";
+import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 type Workout = Awaited<ReturnType<typeof getWorkoutsForDay>>[number];
 
@@ -33,6 +35,7 @@ export default function WorkoutDay({ params: { time } }: { params: { time: strin
 }
 
 function Workouts({ workouts }: { workouts: Workout[] }) {
+	const router = useRouter();
 	function onSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
@@ -106,19 +109,32 @@ function Workouts({ workouts }: { workouts: Workout[] }) {
 									<PrimedCalendar name={`${i}-startDate`} defaultValue={w.startDate} />
 								</td>
 								<td>
-									<PrimedCalendar name={`${i}-endDate`} defaultValue={w.endDate} />
+									<PrimedCalendar name={`${i}-endDate`} defaultValue={w.endDate ?? undefined} />
 								</td>
 								<td>
 									<input name={`${i}-note`} type="text" defaultValue={w.note || ""}></input>
 								</td>
 								<td>
 									<button type="submit" value={i}>
-										<PencilSquareIcon className="size-4" />{" "}
+										<PencilSquareIcon className="size-4" />
 									</button>
 								</td>
 								<td>
 									<button type="button" onClick={() => deleteWorkout(i)}>
-										<TrashIcon className="size-4" />{" "}
+										<TrashIcon className="size-4" />
+									</button>
+								</td>
+								<td>
+									<button
+										type="button"
+										onClick={() => {
+											const workout = workouts[i];
+											const path = window.location.pathname;
+											const cared = path.split("/").slice(0, 3).join("/");
+											router.push(`${cared}/${workout.id}`);
+										}}
+									>
+										<PaperAirplaneIcon className="size-4" />
 									</button>
 								</td>
 							</tr>

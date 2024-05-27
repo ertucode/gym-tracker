@@ -3,10 +3,10 @@
 import { createWorkoutAction, getWorkoutsForMonth } from "@/actions/actions";
 import { Calendar, CalendarRef } from "@/components/calendar";
 import { Month } from "@/components/date-utils";
+import { Button } from "@/components/ui/button";
 import { useClient } from "@/hooks/useClient";
 import { DateUtil } from "@/utils/date-utils";
 import { useRouter } from "next/navigation";
-import { Button } from "primereact/button";
 import { useCallback, useRef, useState } from "react";
 
 type Workout = Awaited<ReturnType<typeof getWorkoutsForMonth>>[number];
@@ -75,9 +75,10 @@ export default function WorkoutsLayout({ children }: { children: React.ReactNode
 						window.location.reload();
 					});
 				}}
-				label="Create Workout"
 				className="my-3"
-			></Button>
+			>
+				Create Workout
+			</Button>
 			{children}
 		</div>
 	);

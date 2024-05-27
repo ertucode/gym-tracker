@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
+import { text, integer, sqliteTable, real } from "drizzle-orm/sqlite-core";
 
 // TODO: exercise tags
 
@@ -21,7 +21,7 @@ export const Sets = sqliteTable(
 	"sets",
 	{
 		id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-		index: integer("index", { mode: "number" }),
+		index: integer("index", { mode: "number" }).notNull(),
 		workoutId: integer("workoutId")
 			.references(() => Workouts.id)
 			.notNull(),
@@ -43,6 +43,7 @@ export const Reps = sqliteTable("reps", {
 		.references(() => Sets.id)
 		.notNull(),
 	count: integer("count").notNull(),
+	weight: real("weight").notNull(),
 	index: integer("index").notNull(),
 	note: text("note"),
 });
@@ -51,7 +52,10 @@ export const Reps = sqliteTable("reps", {
 
 export const SetRelations = relations(Sets, ({ one, many }) => {
 	return {
-		workouts: one(Workouts),
+		workouts: one(Workouts, {
+			fields: [Sets.workoutId],
+			references: [Workouts.id],
+		}),
 		exercises: one(Exercises),
 		reps: many(Reps),
 	};
@@ -59,6 +63,15 @@ export const SetRelations = relations(Sets, ({ one, many }) => {
 
 export const RepRelations = relations(Reps, ({ one, many }) => {
 	return {
-		sets: one(Sets),
+		sets: one(Sets, {
+			fields: [Reps.setId],
+			references: [Sets.id],
+		}),
+	};
+});
+
+export const WorkoutRelations = relations(Workouts, ({ one, many }) => {
+	return {
+		sets: many(Sets),
 	};
 });

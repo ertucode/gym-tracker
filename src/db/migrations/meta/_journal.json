@@ -15,6 +15,13 @@
       "when": 1716732463015,
       "tag": "0001_kind_dreadnoughts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1716834047868,
+      "tag": "0002_sour_randall_flagg",
+      "breakpoints": true
     }
   ]
 }
