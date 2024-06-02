@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useAutoUpdate } from "@/hooks/useAutoUpdate";
 import { useExercises } from "@/hooks/useExercises";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/outline";
@@ -26,7 +27,10 @@ import {
 	SetStateAction,
 	Dispatch,
 } from "react";
-import { useDebounce } from "use-debounce";
+
+function newIndex(items: { index: number }[]) {
+	return Math.max(...items.map((i) => i.index)) + 1;
+}
 
 type Workout = Exclude<Awaited<ReturnType<typeof getWorkoutAction>>, undefined>;
 type WorkoutSet = Workout["sets"][number];
@@ -56,7 +60,7 @@ export default function Workout({ params: { id } }: { params: { id: string } }) 
 		const value = Object.fromEntries(new FormData(e.currentTarget));
 		const workoutId = parseInt(id);
 		const exerciseId = parseInt(value.exerciseId.toString());
-		const index = workout!.sets.length;
+		const index = workout === null ? 0 : newIndex(workout.sets);
 
 		const body = { workoutId, exerciseId, index };
 		const result = await createSetAction(body);
@@ -85,6 +89,13 @@ export default function Workout({ params: { id } }: { params: { id: string } }) 
 
 	return (
 		<div>
+			<div>
+				<div className="flex flex-col gap-6">
+					{workout?.sets.map((s) => {
+						return <WorkoutSet key={s.id} s={s} setWorkout={setWorkout} />;
+					})}
+				</div>
+			</div>
 			<form className="flex flex-col items-start gap-3" onSubmit={createSet}>
 				{exercises && (
 					<label>
@@ -109,86 +120,46 @@ export default function Workout({ params: { id } }: { params: { id: string } }) 
 				)}
 				<Button>Create Set</Button>
 			</form>
-			<div>
-				<div className="flex flex-col gap-6">
-					{workout?.sets.map((s) => {
-						return <WorkoutSet key={s.id} s={s} setWorkout={setWorkout} />;
-					})}
-				</div>
-			</div>
 		</div>
 	);
 }
 
-function WorkoutSet({ s, setWorkout }: { s: WorkoutSet; setWorkout: SetWorkoutFn }) {
+function WorkoutSet({ s: _s, setWorkout }: { s: WorkoutSet; setWorkout: SetWorkoutFn }) {
+	const [s, setS] = useState(_s);
+
 	const [note, setNote] = useState(s.note ?? "");
-	const [updatingNote, setUpdatingNote] = useState<void[]>([]);
-	async function addRep(setId: number, index: number, weight: number, count: number) {
+
+	async function addRep(setId: number, weight: number, count: number) {
+		const index = newIndex(s.reps);
 		return createRepAction({
 			setId,
 			count,
 			index,
 			weight,
 		}).then((result) => {
-			setWorkout((w) => {
-				if (w == null) return w;
-				const setIdx = w.sets.findIndex((s) => s.id === setId);
-				const set = w.sets[setIdx];
-				const rep = set.reps.find((r) => r.index === index);
-
-				if (rep) return w && { ...w };
-
-				w.sets = [...w.sets];
-
-				const newOne = {
-					index,
-					count,
-					setId,
-					id: result[0].id,
-					note: null,
-					weight,
-				};
-
-				w.sets[setIdx] = {
-					...set,
-					reps: [...set.reps, newOne],
-				};
-
-				return { ...w };
-			});
+			const newOne = {
+				index,
+				count,
+				setId,
+				id: result[0].id,
+				note: null,
+				weight,
+			};
+			setS((s) => ({ ...s, reps: [...s.reps, newOne] }));
 			return result;
 		});
 	}
 
-	const [debouncedNote] = useDebounce(note, 500);
-
-	useEffect(() => {
+	const [updatingNote] = useAutoUpdate(note, 500, async (debouncedNote) => {
 		const note = debouncedNote;
 		if (note === s.note) return;
-		setUpdatingNote((u) => [...u, undefined]);
-		updateSetAction({
+		return updateSetAction({
 			...s,
-			note: debouncedNote,
-		})
-			.then((_) => {
-				setWorkout((w) => {
-					if (w == null) return w;
-					const setIdx = w.sets.findIndex((st) => st === s);
-
-					w.sets = [...w.sets];
-
-					w.sets[setIdx] = {
-						...s,
-						note,
-					};
-
-					return { ...w };
-				});
-			})
-			.finally(() => {
-				setUpdatingNote((u) => u.slice(0, -1));
-			});
-	}, [debouncedNote]);
+			note,
+		}).then((_) => {
+			setS((s) => ({ ...s, note }));
+		});
+	});
 
 	const { exerciseName } = useExercises();
 	return (
@@ -199,7 +170,7 @@ function WorkoutSet({ s, setWorkout }: { s: WorkoutSet; setWorkout: SetWorkoutFn
 			<div className="relative">
 				<Textarea defaultValue={note} onChange={(e) => setNote(e.currentTarget.value)}></Textarea>
 
-				{updatingNote.length !== 0 && <LoadingSpinner className="absolute bottom-0 right-0" />}
+				{updatingNote && <LoadingSpinner className="absolute bottom-0 right-0" />}
 			</div>
 			<div className="grid grid-cols-3 text-center">
 				<div className="col-span-3 grid grid-cols-subgrid font-semibold">
@@ -219,7 +190,8 @@ function WorkoutSet({ s, setWorkout }: { s: WorkoutSet; setWorkout: SetWorkoutFn
 
 type Rep = WorkoutSet["reps"][number];
 
-function RepRow({ r, s, setWorkout }: { r: Rep; s: WorkoutSet; setWorkout: SetWorkoutFn }) {
+function RepRow({ r: _r, s, setWorkout }: { r: Rep; s: WorkoutSet; setWorkout: SetWorkoutFn }) {
+	const [r, setR] = useState(_r);
 	async function removeRep(setId: number, id: number) {
 		return removeRepAction(id).then((_) => {
 			setWorkout((w) => {
@@ -242,6 +214,16 @@ function RepRow({ r, s, setWorkout }: { r: Rep; s: WorkoutSet; setWorkout: SetWo
 	}
 
 	const [note, setNote] = useState(r.note ?? "");
+
+	const [updatingNote] = useAutoUpdate(note, 500, async (debouncedNote) => {
+		const note = debouncedNote;
+		if (note === r.note) return;
+		await updateRepAction({
+			...r,
+			note,
+		});
+		setR((r) => ({ ...r, note }));
+	});
 
 	return (
 		<form
@@ -284,7 +266,7 @@ function RepRow({ r, s, setWorkout }: { r: Rep; s: WorkoutSet; setWorkout: SetWo
 				></Input>
 			</div>
 			<div className="flex gap-1">
-				<Button type="submit" variant="outline" size="icon">
+				<Button type="submit" variant="outline" size="icon" loading={updatingNote}>
 					<PencilIcon className="size-4" />
 				</Button>
 				<Button
@@ -306,7 +288,7 @@ function AddRep({
 	addRep,
 	workoutSet,
 }: {
-	addRep: (setId: number, index: number, weight: number, count: number) => Promise<unknown>;
+	addRep: (setId: number, weight: number, count: number) => Promise<unknown>;
 	workoutSet: WorkoutSet;
 }) {
 	const [weightInputValue, weight, setWeight, weightValueChange] = useInputNumber({
@@ -327,7 +309,7 @@ function AddRep({
 				if (weight == null) return;
 				if (count == null) return;
 
-				addRep(workoutSet.id, workoutSet.reps.length, weight, count).then((r) => {
+				addRep(workoutSet.id, weight, count).then((_) => {
 					setWeight(0);
 					setCount(0);
 					firstInput.current?.focus();

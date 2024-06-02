@@ -1,9 +1,4 @@
-import {
-	NavigationState,
-	CalendarResponsiveOptions,
-	CalendarTypeView,
-	Month,
-} from "./calendar-interface";
+import { NavigationState, CalendarTypeView, Month } from "./calendar-interface";
 
 type Nullable<T> = T | null | undefined;
 
@@ -220,8 +215,6 @@ class HeadlessCalendar {
 	isMonthNavigate: Nullable<boolean>;
 
 	initialized: Nullable<boolean>;
-
-	_responsiveOptions!: CalendarResponsiveOptions[];
 
 	currentView: Nullable<string>;
 
