@@ -4,7 +4,7 @@ import { Month } from "@/components/date-utils";
 import { db } from "@/db/db";
 import { Exercises, Reps, Sets, Workouts } from "@/db/schema";
 import { DateUtil } from "@/utils/date-utils";
-import { and, eq } from "drizzle-orm";
+import { InferInsertModel, and, eq } from "drizzle-orm";
 
 export type CreateWorkout = {
 	startDate: Date;
@@ -148,9 +148,25 @@ export async function getWorkoutAction(request: GetWorkout) {
 }
 
 export async function allExercises() {
-	return db.query.Exercises.findMany();
+	return db.query.Exercises.findMany({
+		with: {
+			exerciseBodyParts: {
+				columns: {
+					bodyPart: true,
+				},
+			},
+		},
+		orderBy: Exercises.name,
+	});
 }
 
 export async function removeRepAction(id: number) {
 	return db.delete(Reps).where(eq(Reps.id, id)).returning();
+}
+
+export async function updateRepAction(request: InferInsertModel<typeof Reps> & { id: number }) {
+	return db.update(Reps).set(request).where(eq(Reps.id, request.id!)).returning();
+}
+export async function updateSetAction(request: InferInsertModel<typeof Sets> & { id: number }) {
+	return db.update(Sets).set(request).where(eq(Sets.id, request.id!)).returning();
 }

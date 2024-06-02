@@ -1,9 +1,75 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ffe5ce31-52ea-4bb7-aa43-4b861752fd48",
+  "id": "2222e775-a197-40e5-acbf-6329cb83c987",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "bodyParts": {
+      "name": "bodyParts",
+      "columns": {
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "exerciseBodyParts": {
+      "name": "exerciseBodyParts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "bodyPart": {
+          "name": "bodyPart",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "exerciseBodyParts_id_exercises_id_fk": {
+          "name": "exerciseBodyParts_id_exercises_id_fk",
+          "tableFrom": "exerciseBodyParts",
+          "tableTo": "exercises",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "exerciseBodyParts_bodyPart_bodyParts_name_fk": {
+          "name": "exerciseBodyParts_bodyPart_bodyParts_name_fk",
+          "tableFrom": "exerciseBodyParts",
+          "tableTo": "bodyParts",
+          "columnsFrom": [
+            "bodyPart"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "exercises": {
       "name": "exercises",
       "columns": {
@@ -67,6 +133,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "weight": {
+          "name": "weight",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "index": {
           "name": "index",
           "type": "integer",
@@ -115,7 +188,7 @@
           "name": "index",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "workoutId": {
@@ -202,6 +275,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "isDeleted": {
+          "name": "isDeleted",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
         }
       },
       "indexes": {},

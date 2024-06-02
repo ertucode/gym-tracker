@@ -48,6 +48,19 @@ export const Reps = sqliteTable("reps", {
 	note: text("note"),
 });
 
+export const BodyParts = sqliteTable("bodyParts", {
+	name: text("name").primaryKey(),
+});
+
+export const ExerciseBodyParts = sqliteTable("exerciseBodyParts", {
+	exerciseId: integer("id")
+		.references(() => Exercises.id)
+		.notNull(),
+	bodyPart: text("bodyPart")
+		.references(() => BodyParts.name)
+		.notNull(),
+});
+
 // RELATIONS
 
 export const SetRelations = relations(Sets, ({ one, many }) => {
@@ -73,5 +86,30 @@ export const RepRelations = relations(Reps, ({ one, many }) => {
 export const WorkoutRelations = relations(Workouts, ({ one, many }) => {
 	return {
 		sets: many(Sets),
+	};
+});
+
+export const ExerciseRelations = relations(Exercises, ({ one, many }) => {
+	return {
+		exerciseBodyParts: many(ExerciseBodyParts),
+	};
+});
+
+export const BodyPartRelations = relations(BodyParts, ({ one, many }) => {
+	return {
+		exerciseBodyParts: many(ExerciseBodyParts),
+	};
+});
+
+export const ExerciseBodyPartRelations = relations(ExerciseBodyParts, ({ one, many }) => {
+	return {
+		bodyPart: one(BodyParts, {
+			fields: [ExerciseBodyParts.bodyPart],
+			references: [BodyParts.name],
+		}),
+		exercise: one(Exercises, {
+			fields: [ExerciseBodyParts.exerciseId],
+			references: [Exercises.id],
+		}),
 	};
 });

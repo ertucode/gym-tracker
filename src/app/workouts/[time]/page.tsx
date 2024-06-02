@@ -3,17 +3,20 @@
 import { deleteWorkoutAction, getWorkoutsForDay, updateWorkoutAction } from "@/actions/actions";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
-import { FormEvent, useEffect, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction, useEffect, useState } from "react";
 import { z } from "zod";
 
 import { PrimedCalendar } from "./PrimedCalendar";
 import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { DateUtil } from "@/utils/date-utils";
+import { useWorkouts } from "../workouts";
 
 type Workout = Awaited<ReturnType<typeof getWorkoutsForDay>>[number];
 
 export default function WorkoutDay({ params: { time } }: { params: { time: string } }) {
-	const [workouts, setWorkouts] = useState<Workout[] | null>(null);
+	const { workouts, setWorkouts } = useWorkouts();
+
 	const [loading, setLoading] = useState(false);
 	useEffect(() => {
 		if (!time) return;
@@ -30,11 +33,17 @@ export default function WorkoutDay({ params: { time } }: { params: { time: strin
 	) : workouts == null || workouts.length === 0 ? (
 		"No workouts"
 	) : (
-		<Workouts workouts={workouts} />
+		<Workouts workouts={workouts} setWorkouts={setWorkouts} />
 	);
 }
 
-function Workouts({ workouts }: { workouts: Workout[] }) {
+function Workouts({
+	workouts,
+	setWorkouts,
+}: {
+	workouts: Workout[];
+	setWorkouts: Dispatch<SetStateAction<Workout[]>>;
+}) {
 	const router = useRouter();
 	function onSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -70,8 +79,6 @@ function Workouts({ workouts }: { workouts: Workout[] }) {
 
 		if (!parseResult.success) return;
 
-		console.log(body);
-
 		const id = workouts[i].id;
 		updateWorkoutAction({
 			...body,
@@ -83,8 +90,12 @@ function Workouts({ workouts }: { workouts: Workout[] }) {
 		const w = workouts[i];
 
 		deleteWorkoutAction({ id: w.id }).then((v) => {
-			window.location.reload();
+			setWorkouts((ws) => ws.filter((nw) => nw.id !== w.id));
 		});
+	}
+
+	function endDate(w: Workout) {
+		return w.endDate ?? new DateUtil(w.startDate).hourDiff(1);
 	}
 
 	return (
@@ -109,7 +120,7 @@ function Workouts({ workouts }: { workouts: Workout[] }) {
 									<PrimedCalendar name={`${i}-startDate`} defaultValue={w.startDate} />
 								</td>
 								<td>
-									<PrimedCalendar name={`${i}-endDate`} defaultValue={w.endDate ?? undefined} />
+									<PrimedCalendar name={`${i}-endDate`} defaultValue={endDate(w)} />
 								</td>
 								<td>
 									<input name={`${i}-note`} type="text" defaultValue={w.note || ""}></input>

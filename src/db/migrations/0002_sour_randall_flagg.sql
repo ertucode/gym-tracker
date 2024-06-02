@@ -1,1 +1,0 @@
-ALTER TABLE `reps` ADD `weight` real NOT NULL;

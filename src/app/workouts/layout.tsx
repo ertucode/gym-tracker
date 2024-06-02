@@ -7,14 +7,26 @@ import { Button } from "@/components/ui/button";
 import { useClient } from "@/hooks/useClient";
 import { DateUtil } from "@/utils/date-utils";
 import { useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
-
-type Workout = Awaited<ReturnType<typeof getWorkoutsForMonth>>[number];
+import React, { useCallback, useRef, useState } from "react";
+import { WorkoutContextProvider, useWorkouts } from "./workouts";
+import { ExercisesContextProvider } from "@/hooks/useExercises";
 
 export default function WorkoutsLayout({ children }: { children: React.ReactNode }) {
+	return (
+		<div className="flex flex-col items-start">
+			<WorkoutContextProvider>
+				<ExercisesContextProvider>
+					<InContext>{children}</InContext>
+				</ExercisesContextProvider>
+			</WorkoutContextProvider>
+		</div>
+	);
+}
+
+function InContext({ children }: { children: React.ReactNode }) {
 	const calendarRef = useRef<CalendarRef>(null);
 
-	const [workouts, setWorkouts] = useState<Workout[] | null>(null);
+	const { workouts, setWorkouts } = useWorkouts();
 
 	const client = useClient();
 
@@ -44,9 +56,8 @@ export default function WorkoutsLayout({ children }: { children: React.ReactNode
 	if (!client) return null;
 
 	const date = resolveSelectedDateFromParam();
-
 	return (
-		<div className="flex flex-col items-start">
+		<>
 			<Calendar
 				ref={calendarRef}
 				selectedDate={date}
@@ -69,10 +80,16 @@ export default function WorkoutsLayout({ children }: { children: React.ReactNode
 			/>
 			<Button
 				onClick={() => {
+					const startDate = calendarRef.current?.selectedDate() ?? new Date();
 					createWorkoutAction({
-						startDate: calendarRef.current?.selectedDate() ?? new Date(),
-					}).then(() => {
-						window.location.reload();
+						startDate,
+					}).then((w) => {
+						setWorkouts((ws) => {
+							const newOne = { startDate, endDate: null, id: w[0].id, note: null, isDeleted: null };
+							if (ws === null) return [newOne];
+
+							return [...ws, newOne];
+						});
 					});
 				}}
 				className="my-3"
@@ -80,7 +97,7 @@ export default function WorkoutsLayout({ children }: { children: React.ReactNode
 				Create Workout
 			</Button>
 			{children}
-		</div>
+		</>
 	);
 }
 
