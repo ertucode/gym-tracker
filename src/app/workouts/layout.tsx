@@ -11,6 +11,8 @@ import React, { useCallback, useRef, useState } from "react";
 import { WorkoutContextProvider, useWorkouts } from "./workouts";
 import { ExercisesContextProvider } from "@/hooks/useExercises";
 
+type Workout = Awaited<ReturnType<typeof getWorkoutsForMonth>>[number];
+
 export default function WorkoutsLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<div className="flex flex-col items-start">
@@ -26,16 +28,18 @@ export default function WorkoutsLayout({ children }: { children: React.ReactNode
 function InContext({ children }: { children: React.ReactNode }) {
 	const calendarRef = useRef<CalendarRef>(null);
 
-	const { workouts, setWorkouts } = useWorkouts();
+	const [monthWorkouts, setMonthWorkouts] = useState<Workout[]>([]);
+
+	const { setWorkouts: setDayWorkouts } = useWorkouts();
 
 	const client = useClient();
 
 	const classCb = useCallback(
 		(month: Month, day: number) => {
-			if (!workouts) return;
+			if (!monthWorkouts) return;
 
 			if (
-				workouts.find((w) => {
+				monthWorkouts.find((w) => {
 					const date = new Date(w.startDate);
 					return (
 						day === date.getDate() &&
@@ -48,7 +52,7 @@ function InContext({ children }: { children: React.ReactNode }) {
 			}
 			return null;
 		},
-		[workouts],
+		[monthWorkouts],
 	);
 
 	const router = useRouter();
@@ -73,7 +77,7 @@ function InContext({ children }: { children: React.ReactNode }) {
 				}}
 				onMonthChange={(m) => {
 					getWorkoutsForMonth({ month: m }).then((v) => {
-						setWorkouts(v);
+						setMonthWorkouts(v);
 					});
 				}}
 				classCb={classCb}
@@ -84,12 +88,14 @@ function InContext({ children }: { children: React.ReactNode }) {
 					createWorkoutAction({
 						startDate,
 					}).then((w) => {
-						setWorkouts((ws) => {
+						function fn(ws: Workout[]): Workout[] {
 							const newOne = { startDate, endDate: null, id: w[0].id, note: null, isDeleted: null };
 							if (ws === null) return [newOne];
 
 							return [...ws, newOne];
-						});
+						}
+						setDayWorkouts(fn);
+						setMonthWorkouts(fn);
 					});
 				}}
 				className="my-3"
