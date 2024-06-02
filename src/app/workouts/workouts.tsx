@@ -1,3 +1,5 @@
+"use client";
+
 import { getWorkoutsForMonth } from "@/actions/actions";
 import { Dispatch, SetStateAction, createContext, useContext, useState } from "react";
 

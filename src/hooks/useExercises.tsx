@@ -1,5 +1,7 @@
+"use client";
+
 import { allExercises } from "@/actions/actions";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
 
 type Exercise = Awaited<ReturnType<typeof allExercises>>[number];
 
@@ -16,14 +18,12 @@ export function useExercises() {
 
 const ExercisesContext = createContext<Exercise[] | null>(null);
 
-export function ExercisesContextProvider({ children }: { children: React.ReactNode }) {
-	const [state, setState] = useState<Exercise[] | null>(null);
-
-	useEffect(() => {
-		allExercises().then((e) => {
-			setState(e);
-		});
-	}, []);
-
-	return <ExercisesContext.Provider value={state}>{children}</ExercisesContext.Provider>;
+export function ExercisesContextProvider({
+	exercises,
+	children,
+}: {
+	children: React.ReactNode;
+	exercises: Exercise[];
+}) {
+	return <ExercisesContext.Provider value={exercises}>{children}</ExercisesContext.Provider>;
 }
