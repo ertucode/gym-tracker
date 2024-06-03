@@ -4,18 +4,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAutoUpdate } from "@/hooks/useAutoUpdate";
 import { useExercises } from "@/hooks/useExercises";
 import { useState } from "react";
-import { SetWorkoutFn, WorkoutSet } from "./types";
+import { WorkoutSet } from "./types";
 import { newIndex } from "./helpers";
 import { RepRow } from "./RepRow";
 import { AddRep } from "./AddRep";
 
-export function WorkoutSetDisplayer({
-	s: _s,
-	setWorkout,
-}: {
-	s: WorkoutSet;
-	setWorkout: SetWorkoutFn;
-}) {
+export function WorkoutSetDisplayer({ s: _s }: { s: WorkoutSet }) {
 	const [s, setS] = useState(_s);
 
 	const [note, setNote] = useState(s.note ?? "");
@@ -71,7 +65,7 @@ export function WorkoutSetDisplayer({
 					<div></div>
 				</div>
 				{s.reps.map((r) => (
-					<RepRow key={r.id} r={r} s={s} setWorkout={setWorkout} />
+					<RepRow key={r.id} r={r} setS={setS} />
 				))}
 				<AddRep addRep={addRep} workoutSet={s} />
 			</div>

@@ -1,60 +1,21 @@
-import {
-	createRepAction,
-	createSetAction,
-	getWorkoutAction,
-	removeRepAction,
-	updateRepAction,
-	updateSetAction,
-} from "@/actions/actions";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { removeRepAction, updateRepAction } from "@/actions/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useAutoUpdate } from "@/hooks/useAutoUpdate";
-import { useExercises } from "@/hooks/useExercises";
 import { TrashIcon } from "@heroicons/react/24/outline";
-import { PlusIcon } from "@heroicons/react/24/outline";
 import { PencilIcon } from "@heroicons/react/24/outline";
-import {
-	FormEvent,
-	useEffect,
-	useState,
-	useRef,
-	ChangeEvent,
-	SetStateAction,
-	Dispatch,
-} from "react";
-import { Rep, SetWorkoutFn, WorkoutSet } from "./types";
-import { newIndex } from "./helpers";
+import { Dispatch, SetStateAction, useState } from "react";
+import { Rep, WorkoutSet } from "./types";
 
-export function RepRow({
-	r: _r,
-	s,
-	setWorkout,
-}: {
-	r: Rep;
-	s: WorkoutSet;
-	setWorkout: SetWorkoutFn;
-}) {
+export function RepRow({ r: _r, setS }: { r: Rep; setS: Dispatch<SetStateAction<WorkoutSet>> }) {
 	const [r, setR] = useState(_r);
-	async function removeRep(setId: number, id: number) {
-		return removeRepAction(id).then((_) => {
-			setWorkout((w) => {
-				if (w == null) return w;
-				const setIdx = w?.sets.findIndex((s) => s.id === setId);
-				if (setIdx === -1) return { ...w };
-
-				const set = w.sets[setIdx];
-
-				w.sets = [...w.sets];
-
-				w.sets[setIdx] = {
-					...set,
-					reps: set.reps.filter((r) => r.id !== id),
+	async function removeRep() {
+		return removeRepAction(r.id).then((_) => {
+			setS((s) => {
+				return {
+					...s,
+					reps: s.reps.filter((rep) => rep.id !== r.id),
 				};
-
-				return { ...w };
 			});
 		});
 	}
@@ -83,20 +44,11 @@ export function RepRow({
 					index: r.index,
 					note,
 				}).then(() => {
-					setWorkout((w) => {
-						if (w == null) return w;
-						const setIdx = w.sets.findIndex((st) => st === s);
-						const repIdx = s.reps.findIndex((rep) => rep === r);
-
-						s.reps[repIdx] = { ...r, note };
-
-						w.sets = [...w.sets];
-						w.sets[setIdx] = {
-							...s,
-							reps: [...s.reps],
+					setR((r) => {
+						return {
+							...r,
+							note,
 						};
-
-						return { ...w };
 					});
 				});
 			}}
@@ -120,7 +72,7 @@ export function RepRow({
 					variant="outline"
 					size="icon"
 					onClick={() => {
-						removeRep(s.id, r.id);
+						removeRep();
 					}}
 				>
 					<TrashIcon className="size-4" />
